@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,7 +24,7 @@ func checkAdminSetting(chatID int64) (adminSrc *AdminSettings) {
 	defaultAdminSrc := &AdminSettings{ChatId: chatID, AnonAdmin: false}
 
 	err := findOne(adminSettingsColl, bson.M{"_id": chatID}).Decode(&adminSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		adminSrc = defaultAdminSrc
 		err := updateOne(adminSettingsColl, bson.M{"_id": chatID}, defaultAdminSrc)
 		if err != nil {

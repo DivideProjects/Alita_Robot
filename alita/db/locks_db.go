@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -43,7 +44,7 @@ type Restrictions struct {
 func checkChatLocks(chatID int64) (lockrc *Locks) {
 	defaultLockrc := &Locks{ChatId: chatID, Permissions: &Permissions{}, Restrictions: &Restrictions{}}
 	errS := findOne(lockColl, bson.M{"_id": chatID}).Decode(&lockrc)
-	if errS == mongo.ErrNoDocuments {
+	if errors.Is(errS, mongo.ErrNoDocuments) {
 		lockrc = defaultLockrc
 		err := updateOne(lockColl, bson.M{"_id": chatID}, lockrc)
 		if err != nil {

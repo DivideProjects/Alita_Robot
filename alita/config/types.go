@@ -19,13 +19,13 @@ func (t typeConvertor) StringArray() []string {
 	return allUpdates
 }
 
-// IntArray will return an int array from a comma separated string
+// Int Array will return an int array from a comma separated string
 func (t typeConvertor) Int() int {
 	val, _ := strconv.Atoi(t.str)
 	return val
 }
 
-// Int64Array will return an int64 array from a comma separated string
+// Int64 Array will return an int64 array from a comma separated string
 func (t typeConvertor) Int64() int64 {
 	val, _ := strconv.ParseInt(t.str, 10, 64)
 	return val

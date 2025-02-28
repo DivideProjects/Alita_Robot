@@ -66,7 +66,7 @@ func LoadAntispam(dispatcher *ext.Dispatcher) {
 	dispatcher.AddHandlerToGroup(
 		handlers.NewMessage(
 			message.All,
-			func(bot *gotgbot.Bot, ctx *ext.Context) error {
+			func(_ *gotgbot.Bot, ctx *ext.Context) error {
 				if antispamModule.spamCheck(ctx.EffectiveChat.Id) {
 					return ext.EndGroups
 				}

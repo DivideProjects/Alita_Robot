@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/divideprojects/Alita_Robot/alita/utils/string_handling"
@@ -28,7 +29,7 @@ func GetChatReportSettings(chatID int64) (reportsrc *ChatReportSettings) {
 	}
 
 	err := findOne(reportChatColl, bson.M{"_id": chatID}).Decode(&reportsrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		reportsrc = defReportSettings
 		err := updateOne(reportChatColl, bson.M{"_id": chatID}, reportsrc)
 		if err != nil {
@@ -87,7 +88,7 @@ func GetUserReportSettings(userId int64) (reportsrc *UserReportSettings) {
 	}
 
 	err := findOne(reportUserColl, bson.M{"_id": userId}).Decode(&reportsrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		reportsrc = defReportSettings
 		err := updateOne(reportUserColl, bson.M{"_id": userId}, reportsrc)
 		if err != nil {

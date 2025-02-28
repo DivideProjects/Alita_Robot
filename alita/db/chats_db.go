@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/divideprojects/Alita_Robot/alita/utils/string_handling"
@@ -19,7 +20,7 @@ type Chat struct {
 
 func GetChatSettings(chatId int64) (chatSrc *Chat) {
 	err := findOne(chatColl, bson.M{"_id": chatId}).Decode(&chatSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		chatSrc = &Chat{}
 	} else if err != nil {
 		log.Errorf("[Database] getChatSettings: %v - %d ", err, chatId)

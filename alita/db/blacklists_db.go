@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -26,7 +27,7 @@ func checkBlacklistSetting(chatID int64) (blSrc *BlacklistSettings) {
 		Reason:   "Automated Blacklisted word %s",
 	}
 	errS := findOne(blacklistsColl, bson.M{"_id": chatID}).Decode(&blSrc)
-	if errS == mongo.ErrNoDocuments {
+	if errors.Is(errS, mongo.ErrNoDocuments) {
 		blSrc = defaultBlacklistSrc
 		err := updateOne(blacklistsColl, bson.M{"_id": chatID}, defaultBlacklistSrc)
 		if err != nil {

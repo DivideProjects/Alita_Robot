@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,7 +32,7 @@ type ChatNotes struct {
 func getNotesSettings(chatID int64) (noteSrc *NoteSettings) {
 	defaultNotesSrc := &NoteSettings{ChatId: chatID, PrivateNotesEnabled: false}
 	err := findOne(notesSettingsColl, bson.M{"_id": chatID}).Decode(&noteSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		noteSrc = defaultNotesSrc
 		err := updateOne(notesSettingsColl, bson.M{"_id": chatID}, noteSrc)
 		if err != nil {
@@ -56,7 +57,7 @@ func GetNotes(chatID int64) *NoteSettings {
 
 func GetNote(chatID int64, keyword string) (noteSrc *ChatNotes) {
 	err := findOne(notesColl, bson.M{"chat_id": chatID, "note_name": keyword}).Decode(&noteSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		noteSrc = nil
 	} else if err != nil {
 		log.Errorf("[Database] getNotesSettings: %v - %d", err, chatID)

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -22,7 +23,7 @@ type ChatFilters struct {
 
 func GetFilter(chatID int64, keyword string) (filtSrc *ChatFilters) {
 	err := findOne(filterColl, bson.M{"chat_id": chatID, "keyword": keyword}).Decode(&filtSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		filtSrc = &ChatFilters{}
 	} else if err != nil {
 		log.Errorf("[Database] GetFilter: %v - %d", err, chatID)

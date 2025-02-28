@@ -81,9 +81,9 @@ func (moduleStruct) checkPinned(b *gotgbot.Bot, ctx *ext.Context) error {
 This function unpins the latest pinned message or message to which user replied */
 
 func (moduleStruct) unpin(b *gotgbot.Bot, ctx *ext.Context) error {
-	user := ctx.EffectiveSender.User
 	chat := ctx.EffectiveChat
 	msg := ctx.EffectiveMessage
+	user := ctx.EffectiveSender.User
 
 	// Check permissions
 	if !chat_status.RequireGroup(b, ctx, nil, false) {
@@ -114,39 +114,27 @@ func (moduleStruct) unpin(b *gotgbot.Bot, ctx *ext.Context) error {
 	}
 
 	if rMsg := msg.ReplyToMessage; rMsg != nil {
-		if rMsg.PinnedMessage == nil {
-			replyText = "Replied message is not a pinned message."
-		} else {
-			_, err := b.UnpinChatMessage(chat.Id, &gotgbot.UnpinChatMessageOpts{MessageId: &rMsg.MessageId})
-			if err != nil {
-				log.Error(err)
-				return err
-			}
-			replyText = "Unpinned this message."
-			replyMsgId = rMsg.MessageId
+		replyText = "Unpinned this message."
+		_, err := b.UnpinChatMessage(chat.Id, &gotgbot.UnpinChatMessageOpts{MessageId: &rMsg.MessageId})
+		if err != nil {
+			replyText = "failed to unpin:" + err.Error()
+
 		}
 	} else {
 		replyText = "Unpinned the last pinned message."
 		_, err := b.UnpinChatMessage(chat.Id, nil)
 		if err != nil {
-			// if err.Error() == "unable to unpinChatMessage: Bad Request: message to unpin not found" {
-			// 	replyText = "No pinned message found."
-			// } else
-			// if err != nil {
-			log.Error(err)
-			return err
-			// }
+			replyText = "failed to unpin:" + err.Error()
 		}
 	}
 
 	_, err := msg.Reply(b, replyText,
 		&gotgbot.SendMessageOpts{
-			ReplyParameters: &gotgbot.ReplyParameters{
-				MessageId:                replyMsgId,
-				AllowSendingWithoutReply: true,
-			},
+			LinkPreviewOptions: &gotgbot.LinkPreviewOptions{IsDisabled: true},
+			ReplyParameters:    &gotgbot.ReplyParameters{MessageId: replyMsgId, AllowSendingWithoutReply: true},
 		},
 	)
+
 	if err != nil {
 		log.Error(err)
 		return err

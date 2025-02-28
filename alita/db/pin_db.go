@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -16,7 +17,7 @@ type Pins struct {
 func GetPinData(chatID int64) (pinrc *Pins) {
 	defaultPinrc := &Pins{ChatId: chatID, AntiChannelPin: false, CleanLinked: false}
 	err := findOne(pinColl, bson.M{"_id": chatID}).Decode(&pinrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		pinrc = defaultPinrc
 		err = updateOne(pinColl, bson.M{"_id": chatID}, pinrc)
 		if err != nil {

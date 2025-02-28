@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,7 +20,7 @@ type DisableCommand struct {
 func checkDisableSettings(chatID int64) (disSrc *DisableCommand) {
 	defaultDisrc := &DisableCommand{ChatID: chatID, Commands: make([]string, 0), ShouldDelete: false}
 	errS := findOne(disableColl, bson.M{"_id": chatID}).Decode(&disSrc)
-	if errS == mongo.ErrNoDocuments {
+	if errors.Is(errS, mongo.ErrNoDocuments) {
 		disSrc = defaultDisrc
 		err := updateOne(disableColl, bson.M{"_id": chatID}, defaultDisrc)
 		if err != nil {
@@ -62,7 +63,7 @@ func IsCommandDisabled(chatId int64, cmd string) bool {
 	return string_handling.FindInStringSlice(GetChatDisabledCMDs(chatId), cmd)
 }
 
-// ToggleDel Toogle Command Deleting
+// ToggleDel Toggle Command Deleting
 func ToggleDel(chatId int64, pref bool) {
 	disableCmd := checkDisableSettings(chatId)
 	disableCmd.ShouldDelete = pref

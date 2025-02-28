@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	"fmt"
 	"runtime"
 
@@ -14,7 +15,7 @@ import (
 func GetTeamMemInfo(userID int64) (devrc *Team) {
 	defaultTeamMember := &Team{UserId: userID, Dev: false, Sudo: false}
 	err := findOne(devsColl, bson.M{"_id": userID}).Decode(&devrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		devrc = defaultTeamMember
 	} else if err != nil {
 		devrc = defaultTeamMember

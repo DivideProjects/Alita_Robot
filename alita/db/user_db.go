@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -27,7 +28,7 @@ func EnsureBotInDb(b *gotgbot.Bot) {
 func checkUserInfo(userId int64) (userc *User) {
 	defaultUser := &User{UserId: userId}
 	errS := findOne(userColl, bson.M{"_id": userId}).Decode(&userc)
-	if errS == mongo.ErrNoDocuments {
+	if errors.Is(errS, mongo.ErrNoDocuments) {
 		userc = nil
 	} else if errS != nil {
 		log.Errorf("[Database] checkUserInfo: %v - %d", errS, userId)
@@ -64,7 +65,7 @@ func UpdateUser(userId int64, username, name string) {
 func GetUserIdByUserName(username string) int64 {
 	var guids *User
 	err := findOne(userColl, bson.M{"username": username}).Decode(&guids)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return 0
 	} else if err != nil {
 		log.Errorf("[Database] GetUserIdByUserName: %v - %d", err, guids.UserId)

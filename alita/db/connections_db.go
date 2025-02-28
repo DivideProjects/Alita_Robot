@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -30,7 +31,7 @@ func ToggleAllowConnect(chatID int64, pref bool) {
 func GetChatConnectionSetting(chatID int64) (connectionSrc *ConnectionSettings) {
 	defaultConnectionSrc := &ConnectionSettings{ChatId: chatID, AllowConnect: false}
 	errF := findOne(connectionSettingsColl, bson.M{"_id": chatID}).Decode(&connectionSrc)
-	if errF == mongo.ErrNoDocuments {
+	if errors.Is(errF, mongo.ErrNoDocuments) {
 		connectionSrc = defaultConnectionSrc
 		err := updateOne(connectionSettingsColl, bson.M{"_id": chatID}, connectionSrc)
 		if err != nil {
@@ -46,7 +47,7 @@ func GetChatConnectionSetting(chatID int64) (connectionSrc *ConnectionSettings) 
 func getUserConnectionSetting(userID int64) (connectionSrc *Connections) {
 	defaultConnectionSrc := &Connections{UserId: userID, Connected: false}
 	errF := findOne(connectionColl, bson.M{"_id": userID}).Decode(&connectionSrc)
-	if errF == mongo.ErrNoDocuments {
+	if errors.Is(errF, mongo.ErrNoDocuments) {
 		connectionSrc = defaultConnectionSrc
 		err := updateOne(connectionColl, bson.M{"_id": userID}, connectionSrc)
 		if err != nil {

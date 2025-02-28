@@ -48,7 +48,7 @@ func main() {
 
 	// Create updater and dispatcher.
 	dispatcher := ext.NewDispatcher(&ext.DispatcherOpts{
-		// If an error is returned by a handler, log it and continue going.
+		// If a handler returns an error, log it and continue going.
 		Error: func(_ *gotgbot.Bot, _ *ext.Context, err error) ext.DispatcherAction {
 			log.Println("an error occurred while handling update:", err.Error())
 			return ext.DispatcherActionNoop
@@ -74,6 +74,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("[Polling] Failed to start polling: %v", err)
 	}
+
 	log.Info("[Polling] Started Polling...!")
 
 	// Log the message that bot started
@@ -92,7 +93,7 @@ func main() {
 		},
 	)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("[Bot] Failed to set commands: %v", err)
 	}
 
 	// Loading Modules
@@ -105,7 +106,7 @@ func main() {
 		),
 	)
 
-	// send message to log group
+	// send a message to log group
 	_, err = b.SendMessage(config.MessageDump,
 		fmt.Sprintf("<b>Started Bot!</b>\n<b>Mode:</b> %s\n<b>Loaded Modules:</b>\n%s", config.WorkingMode, alita.ListModules()),
 		&gotgbot.SendMessageOpts{
@@ -113,8 +114,7 @@ func main() {
 		},
 	)
 	if err != nil {
-		log.Errorf("[Bot] Failed to send message to log group: %v", err)
-		log.Fatal(err)
+		log.Fatalf("[Bot] Failed to send message to log group: %v", err)
 	}
 
 	// Idle, to keep updates coming in, and avoid bot stopping.

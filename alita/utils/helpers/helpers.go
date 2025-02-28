@@ -84,12 +84,12 @@ func SplitMessage(msg string) []string {
 	}
 }
 
-// MentionHtml returns a mention in html format.
+// MentionHtml returns a mention in HTML format.
 func MentionHtml(userId int64, name string) string {
 	return MentionUrl(fmt.Sprintf("tg://user?id=%d", userId), name)
 }
 
-// MentionUrl returns a mention in html format.
+// MentionUrl returns a mention in HTML format.
 func MentionUrl(url, name string) string {
 	return fmt.Sprintf("<a href=\"%s\">%s</a>", url, html.EscapeString(name))
 }

@@ -378,7 +378,7 @@ func (m *moduleStruct) setFloodDeleter(b *gotgbot.Bot, ctx *ext.Context) error {
 			go db.SetFloodMsgDel(chat.Id, true)
 			text = tr.GetString("strings." + m.moduleName + ".flood_deleter.enabled")
 		case "off", "no":
-			go db.SetFloodMsgDel(chat.Id, true)
+			go db.SetFloodMsgDel(chat.Id, false)
 			text = tr.GetString("strings." + m.moduleName + ".flood_deleter.disabled")
 		default:
 			text = tr.GetString("strings." + m.moduleName + ".flood_deleter.invalid_option")

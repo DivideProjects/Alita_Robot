@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -28,7 +29,7 @@ func checkFloodSetting(chatID int64) (floodSrc *FloodSettings) {
 	defaultFloodSrc := &FloodSettings{ChatId: chatID, Limit: 0, Mode: defaultFloodsettingsMode}
 
 	err := findOne(antifloodSettingsColl, bson.M{"_id": chatID}).Decode(&floodSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		floodSrc = defaultFloodSrc
 		err := updateOne(antifloodSettingsColl, bson.M{"_id": chatID}, defaultFloodSrc)
 		if err != nil {

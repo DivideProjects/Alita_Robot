@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -18,7 +19,7 @@ type Rules struct {
 func checkRulesSetting(chatID int64) (rulesrc *Rules) {
 	defRulesSrc := &Rules{ChatId: chatID, Rules: "", Private: false}
 	errS := findOne(rulesColl, bson.M{"_id": chatID}).Decode(&rulesrc)
-	if errS == mongo.ErrNoDocuments {
+	if errors.Is(errS, mongo.ErrNoDocuments) {
 		rulesrc = defRulesSrc
 		err := updateOne(rulesColl, bson.M{"_id": chatID}, rulesrc)
 		if err != nil {

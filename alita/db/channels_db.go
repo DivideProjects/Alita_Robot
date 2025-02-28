@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,7 +16,7 @@ type Channel struct {
 
 func GetChannelSettings(channelId int64) (channelSrc *Channel) {
 	err := findOne(channelColl, bson.M{"_id": channelId}).Decode(&channelSrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		channelSrc = nil
 	} else if err != nil {
 		log.Errorf("[Database] getChannelSettings: %v - %d ", err, channelId)
@@ -52,7 +53,7 @@ func UpdateChannel(channelId int64, channelName, username string) {
 func GetChannelIdByUserName(username string) int64 {
 	var cuids *Channel
 	err := findOne(channelColl, bson.M{"username": username}).Decode(&cuids)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return 0
 	} else if err != nil {
 		log.Errorf("[Database] GetChannelByUserName: %v - %d", err, cuids.ChannelId)

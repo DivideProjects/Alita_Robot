@@ -1,6 +1,7 @@
 package db
 
 import (
+	"errors"
 	log "github.com/sirupsen/logrus"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -23,7 +24,7 @@ type Warns struct {
 func checkWarnSettings(chatID int64) (warnrc *WarnSettings) {
 	defaultWarnSettings := &WarnSettings{ChatId: chatID, WarnLimit: 3, WarnMode: "mute"}
 	err := findOne(warnSettingsColl, bson.M{"_id": chatID}).Decode(&warnrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		warnrc = defaultWarnSettings
 		err := updateOne(warnSettingsColl, bson.M{"_id": chatID}, warnrc)
 		if err != nil {
@@ -39,7 +40,7 @@ func checkWarnSettings(chatID int64) (warnrc *WarnSettings) {
 func checkWarns(userId, chatId int64) (warnrc *Warns) {
 	defaultWarnSrc := &Warns{UserId: userId, ChatId: chatId, NumWarns: 0, Reasons: make([]string, 0)}
 	err := findOne(warnUsersColl, bson.M{"user_id": userId, "chat_id": chatId}).Decode(&warnrc)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		warnrc = defaultWarnSrc
 		err := updateOne(warnUsersColl, bson.M{"user_id": userId, "chat_id": chatId}, warnrc)
 		if err != nil {
@@ -55,7 +56,7 @@ func checkWarns(userId, chatId int64) (warnrc *Warns) {
 func WarnUser(userId, chatId int64, reason string) (int, []string) {
 	warnrc := checkWarns(userId, chatId)
 
-	warnrc.NumWarns++ // Increment warns - Add 1 warn
+	warnrc.NumWarns++ // Increment warns - to Add 1 warn
 
 	// Add reason if it exists
 	if reason != "" {

@@ -6,8 +6,9 @@ import (
 	"path"
 	"runtime"
 
-	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (
@@ -16,16 +17,14 @@ var (
 	BotToken           string
 	DatabaseURI        string
 	MainDbName         string
-	BotVersion         string = "2.1.3"
+	BotVersion         = "2.1.3"
 	ApiServer          string
 	WorkingMode        = "worker"
 	Debug              = false
 	DropPendingUpdates = true
 	OwnerId            int64
 	MessageDump        int64
-	RedisAddress       string
-	RedisPassword      string
-	RedisDB            int
+	RedisURI           string
 )
 
 // init initializes the config variables.
@@ -43,10 +42,7 @@ func init() {
 		},
 	)
 
-	// load goenv config
-	godotenv.Load()
-
-	// set necessary variables
+	// set the necessary variables
 	Debug = typeConvertor{str: os.Getenv("DEBUG")}.Bool()
 	DropPendingUpdates = typeConvertor{str: os.Getenv("DROP_PENDING_UPDATES")}.Bool()
 	DatabaseURI = os.Getenv("DB_URI")
@@ -93,16 +89,8 @@ func init() {
 	}
 
 	// redis config
-	RedisAddress = os.Getenv("REDIS_ADDRESS")
-	if os.Getenv("REDIS_ADDRESS") == "" {
-		RedisAddress = "localhost:6379"
-	}
-	RedisPassword = os.Getenv("REDIS_PASSWORD")
-	if os.Getenv("REDIS_PASSWORD") == "" {
-		RedisPassword = ""
-	}
-	RedisDB = typeConvertor{str: os.Getenv("REDIS_DB")}.Int()
-	if os.Getenv("REDIS_DB") == "" {
-		RedisDB = 0
+	RedisURI = os.Getenv("REDIS_URI")
+	if RedisURI == "" {
+		RedisURI = "redis://localhost:6379"
 	}
 }

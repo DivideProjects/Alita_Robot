@@ -2,8 +2,6 @@ package db
 
 import (
 	"context"
-	"time"
-
 	log "github.com/sirupsen/logrus"
 
 	"github.com/divideprojects/Alita_Robot/alita/config"
@@ -60,46 +58,46 @@ var (
 	notesSettingsColl      *mongo.Collection
 )
 
-// dbInstance func
+// dbInstance initializes the MongoDB client and collections
 func init() {
-	mongoClient, err := mongo.NewClient(
-		options.Client().ApplyURI(config.DatabaseURI),
-	)
+	// Create a new MongoDB client
+	mongoClient, err := mongo.Connect(tdCtx, options.Client().ApplyURI(config.DatabaseURI))
 	if err != nil {
-		log.Errorf("[Database][Client]: %v", err)
+		log.Fatalf("[Database][Connect]: %v", err)
 	}
 
-	ctx, cancel := context.WithTimeout(bgCtx, 10*time.Second)
-	defer cancel()
-
-	err = mongoClient.Connect(ctx)
+	err = mongoClient.Ping(tdCtx, nil)
 	if err != nil {
-		log.Errorf("[Database][Connect]: %v", err)
+		log.Fatalf("[Database][Ping]: %v", err)
 	}
 
-	// Open Connections to Collections
+	// Get the database reference
+	db := mongoClient.Database(config.MainDbName)
+
+	// Initialize collections
 	log.Info("Opening Database Collections...")
-	adminSettingsColl = mongoClient.Database(config.MainDbName).Collection("admin")
-	blacklistsColl = mongoClient.Database(config.MainDbName).Collection("blacklists")
-	pinColl = mongoClient.Database(config.MainDbName).Collection("pins")
-	userColl = mongoClient.Database(config.MainDbName).Collection("users")
-	reportChatColl = mongoClient.Database(config.MainDbName).Collection("report_chat_settings")
-	reportUserColl = mongoClient.Database(config.MainDbName).Collection("report_user_settings")
-	devsColl = mongoClient.Database(config.MainDbName).Collection("devs")
-	chatColl = mongoClient.Database(config.MainDbName).Collection("chats")
-	channelColl = mongoClient.Database(config.MainDbName).Collection("channels")
-	antifloodSettingsColl = mongoClient.Database(config.MainDbName).Collection("antiflood_settings")
-	connectionColl = mongoClient.Database(config.MainDbName).Collection("connection")
-	connectionSettingsColl = mongoClient.Database(config.MainDbName).Collection("connection_settings")
-	disableColl = mongoClient.Database(config.MainDbName).Collection("disable")
-	rulesColl = mongoClient.Database(config.MainDbName).Collection("rules")
-	warnSettingsColl = mongoClient.Database(config.MainDbName).Collection("warns_settings")
-	warnUsersColl = mongoClient.Database(config.MainDbName).Collection("warns_users")
-	greetingsColl = mongoClient.Database(config.MainDbName).Collection("greetings")
-	lockColl = mongoClient.Database(config.MainDbName).Collection("locks")
-	filterColl = mongoClient.Database(config.MainDbName).Collection("filters")
-	notesColl = mongoClient.Database(config.MainDbName).Collection("notes")
-	notesSettingsColl = mongoClient.Database(config.MainDbName).Collection("notes_settings")
+	adminSettingsColl = db.Collection("admin")
+	blacklistsColl = db.Collection("blacklists")
+	pinColl = db.Collection("pins")
+	userColl = db.Collection("users")
+	reportChatColl = db.Collection("report_chat_settings")
+	reportUserColl = db.Collection("report_user_settings")
+	devsColl = db.Collection("devs")
+	chatColl = db.Collection("chats")
+	channelColl = db.Collection("channels")
+	antifloodSettingsColl = db.Collection("antiflood_settings")
+	connectionColl = db.Collection("connection")
+	connectionSettingsColl = db.Collection("connection_settings")
+	disableColl = db.Collection("disable")
+	rulesColl = db.Collection("rules")
+	warnSettingsColl = db.Collection("warns_settings")
+	warnUsersColl = db.Collection("warns_users")
+	greetingsColl = db.Collection("greetings")
+	lockColl = db.Collection("locks")
+	filterColl = db.Collection("filters")
+	notesColl = db.Collection("notes")
+	notesSettingsColl = db.Collection("notes_settings")
+
 	log.Info("Done opening all database collections!")
 }
 
